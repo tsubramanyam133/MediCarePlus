@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Doctor Profile | MediCare+</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<header class="navbar">
+  <div class="logo">MediCare<span>+</span></div>
+
+  <div class="hamburger" id="hamburger">
+    <span></span><span></span><span></span>
+  </div>
+
+  <nav class="nav-menu" id="navMenu">
+  <a href="index.html#home">Home</a>
+  <a href="index.html#about">About</a>
+  <a href="index.html#services">Services</a>
+  <a href="index.html#doctors">Doctors</a>
+  <a href="index.html#gallery">Gallery</a>
+  <a href="index.html#contact">Contact</a>
+  <a href="appointment.html" class="btn small">Appointment</a>
+</nav>
+</header>
+
+<section class="doctor-profile-page">
+
+  <button class="back-btn" onclick="history.back()">← Back to Doctors</button>
+
+  <div class="doctor-profile-card reveal">
+
+    <div class="doctor-profile-image">
+      <img id="detailImg" alt="Doctor Image">
+    
+    </div>
+
+    <div class="doctor-profile-info">
+      <h1 id="detailName"></h1>
+      <p class="speciality" id="detailDept"></p>
+
+      <div class="info-row">
+        <span id="detailHospital"></span>
+        <span id="detailExperience"></span>
+      </div>
+
+      <p class="bio" id="detailBio"></p>
+
+     <button id="bookDoctorAppointment" class="btn">
+  Book Appointment
+</button>
+
+
+
+    </div>
+
+  </div>
+
+</section>
+<section class="mission-vision" id="about">
+    <div class="container">
+        <div class="mission-box reveal">
+            <h2>Our Mission</h2>
+            <p>To provide world-class, accessible healthcare by combining medical excellence with a deeply compassionate, patient-centered approach.</p>
+        </div>
+        <div class="vision-box reveal">
+            <h2>Our Vision</h2>
+            <p>To be the most trusted healthcare network in India, recognized for our commitment to innovation, integrity, and the holistic well-being of the communities we serve.</p>
+        </div>
+    </div>
+</section>
+
+<section class="testimonials" id="testimonials">
+    <div class="container">
+        <h2 class="section-title">Patient Testimonials</h2>
+        <div class="testimonial-grid">
+            <div class="testimonial-card">
+                <p>"The cardiac team at MediCare+ Kadapa provided exceptional care during my emergency. Dr. Deepak Rao's expertise and the staff's compassion truly made a difference in my recovery."</p>
+                <h4>— R. Sharma</h4>
+            </div>
+            <div class="testimonial-card">
+                <p>"I visited the Bangalore facility for my spinal surgery. The advanced technology and Dr. Jayashree's personalized approach gave me my mobility back. Highly recommended!"</p>
+                <h4>— S. Varma</h4>
+            </div>
+        </div>
+    </div>
+</section>
+
+<footer>
+  © 2026 MediCare+. All Rights Reserved.
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,293 @@
+
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+ 
+    <title>MediCare+ | Advanced Medical Infrastructure</title>
+
+    <link rel="icon" type="image/jpg" href="images/logo.jpg">
+
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+<!-- LOGOUT LOADING OVERLAY -->
+<div id="logoutLoader" class="logout-loader">
+  <div class="logout-box">
+    <div class="logout-spinner"></div>
+    <p>Logging out...</p>
+  </div>
+</div>
+
+<!-- NAVBAR -->
+<header class="navbar">
+  <div class="logo-container">
+        <img src="images/logo.jpg" alt="MediCare+ Logo" class="nav-logo">
+        <div class="logo-text">MediCare<span>+</span></div>
+    </div>
+  
+
+  <div class="hamburger" id="hamburger">
+    <span></span><span></span><span></span>
+  </div>
+
+  <nav class="nav-menu" id="navMenu">
+    <a href="#home">Home</a>
+    <a href="#about">About</a>
+    <a href="#services">Services</a>
+    <a href="#doctors">Doctors</a>
+    <a href="#gallery">Gallery</a>
+    <a href="#contact">Contact</a>
+    <a href="appointment.html" class="btn small">Appointment</a>
+
+    <div class="profile-wrapper" id="profileWrapper" style="display: none;">
+        <div class="profile-btn" id="profileBtn">
+            <span class="icon">👤</span> 
+            <strong><span id="profileName"></span></strong>
+            
+        </div>
+
+        <div class="profile-dropdown" id="profileDropdown">
+            <button class="logout-btn" onclick="logoutUser()"><img src="images/logout.png" alt="Logout Icon" class="logout-icon">Logout</button>
+        </div>
+    </div>
+</nav>
+</header>
+
+<!-- HERO -->
+<section id="home" class="hero">
+  <div class="hero-text">
+    <h1>Your Health, Our Priority</h1>
+    <p>Advanced medical care with compassion and trust.</p>
+    <a href="appointment.html" class="btn small">Book Appointment</a>
+
+  </div>
+</section>
+<section id="about" class="section light">
+  <div class="container">
+    <div class="about-content reveal">
+      <h2>About Our Hospital</h2>
+      <p class="section-sub">
+        MediCare+ is a premier multi-speciality hospital network delivering world-class
+        healthcare with expert doctors and modern technology. Our facilities are equipped 
+        with high-resolution imaging and modern surgical suites to ensure precision.
+      </p>
+      <a href="infrastructure.html" class="btn outline">Learn More About Our Tech</a>
+    </div>
+  </div>
+</section>
+
+<section class="testimonials section reveal" id="testimonials">
+    <div class="container">
+        <h2 class="section-title">Patient Testimonials</h2>
+        <div class="testimonial-grid">
+            <div class="testimonial-card">
+                <p>"The cardiac team at MediCare+ Kadapa provided exceptional care during my emergency. Dr. Deepak Rao's expertise and the staff's compassion truly made a difference in my recovery."</p>
+                <h4>— R. Sharma</h4>
+            </div>
+            <div class="testimonial-card">
+                <p>"I visited the Bangalore facility for my spinal surgery. The advanced technology and Dr. Jayashree's personalized approach gave me my mobility back. Highly recommended!"</p>
+                <h4>— S. Varma</h4>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- ABOUT -->
+<section id="services" class="section reveal"> 
+  <div class="container excellence-main-wrapper">
+    
+    <div class="excellence-header">
+      <h2>Why Choose MediCare+</h2>
+      <p>Providing world-class healthcare across 8 major cities with a focus on innovation and integrity.</p>
+    </div>
+
+    <div class="features-row">
+      <div class="feature-item">
+        <span class="feature-icon">🚑</span>
+        <div>
+          <h4>24/7 Emergency</h4>
+          <p>Round-the-clock ICU and emergency services managed by expert intensivists.</p>
+        </div>
+      </div>
+      <div class="feature-item">
+        <span class="feature-icon">👨‍⚕️</span>
+        <div>
+          <h4>Expert Team</h4>
+          <p>Senior specialists with over 15 years of experience prioritizing your recovery.</p>
+        </div>
+      </div>
+      <div class="feature-item">
+        <span class="feature-icon">🔬</span>
+        <div>
+          <h4>Modern Tech</h4>
+          <p>Equipped with high-resolution imaging and modern surgical suites for precision.</p>
+        </div>
+      </div>
+    </div>
+
+    <hr class="excellence-divider">
+
+    <div class="excellence-header">
+      <h3>Our Specialized Services</h3>
+    </div>
+    
+    <div class="service-grid-unified">
+      <div class="service-card-mini">
+        <img src="images/emergency.jpg" alt="Emergency">
+        <h4>Emergency Care</h4>
+      </div>
+      <div class="service-card-mini">
+        <img src="images/icu.jpeg" alt="ICU">
+        <h4>Critical Care (ICU)</h4>
+      </div>
+      <div class="service-card-mini">
+        <img src="images/diagnostics.jpeg" alt="Diagnostics">
+        <h4>Advanced Diagnostics</h4>
+      </div>
+      <div class="service-card-mini">
+        <img src="images/pharmacy.jpg" alt="Pharmacy">
+        <h4>24/7 Pharmacy</h4>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- DOCTORS -->
+<section id="doctors" class="section light">
+  <h2>Our Doctors</h2>
+
+  <!-- Filters -->
+  <div class="doctor-filters">
+    <select id="hospitalSelect" class="filter">
+       <option value="">Select City</option>
+  <option value="Bangalore">Bangalore</option>
+  <option value="Hyderabad">Hyderabad</option>
+  <option value="Kadapa">Kadapa</option>
+  <option value="Tirupati">Tirupati</option>
+  <option value="Ananthapur">Ananthapur</option>
+  <option value="Kurnool">Kurnool</option>
+  <option value="Pune">Pune</option>
+  <option value="Ahmedabad">Ahmedabad</option>
+    </select>
+
+    <input
+      type="text"
+      id="doctorSearch"
+      placeholder="Search doctor by name..."
+      class="filter"
+    />
+  </div>
+
+  <!-- Department buttons -->
+  <div class="dept-grid" id="deptGrid"></div>
+
+  <!-- Doctors cards -->
+  <div class="doctor-grid" id="doctorGrid"></div>
+</section>
+
+
+<!-- DOCTOR DETAIL -->
+<section class="doctor-detail" id="doctorDetail" style="display:none">
+  <button class="back" onclick="closeDoctor()">← Back to Doctors</button>
+
+  <div class="doctor-detail-card">
+    <img id="detailImg" alt="Doctor Photo">
+
+    <div class="doctor-detail-info">
+      <h2 id="detailName"></h2>
+
+      <span class="detail-exp" id="detailExperience">⭐ Experienced Specialist</span>
+
+      <p class="detail-dept" id="detailDept"></p>
+
+      <span class="detail-hospital" id="detailHospital"></span>
+
+      <p class="bio">
+        This specialist provides advanced diagnosis and treatment using
+        modern medical technologies and patient-focused care.
+      </p>
+
+      <button class="btn" onclick="openDoctorAppointment()">
+        Book Appointment
+      </button>
+    </div>
+  </div>
+</section>
+
+
+<!-- GALLERY -->
+<section id="gallery" class="section reveal">
+  <div class="container">
+    <div class="gallery-header">
+      <h2>Our World-Class Facilities</h2>
+      <p>Explore our state-of-the-art diagnostic and surgical infrastructure.</p>
+    </div>
+    
+    <div class="gallery-grid">
+      <div class="gallery-item">
+        <img src="images/gallery1.jpeg" alt="Surgical Suite" onclick="openLightbox(this.src)">
+        <div class="img-overlay"><span>Modern Surgical Suite</span></div>
+      </div>
+      <div class="gallery-item">
+        <img src="images/gallery2.jpeg" alt="Diagnostic Center" onclick="openLightbox(this.src)">
+        <div class="img-overlay"><span>High-Resolution Diagnostics</span></div>
+      </div>
+      <div class="gallery-item">
+        <img src="images/hospital.jpg" alt="Hospital Exterior" onclick="openLightbox(this.src)">
+        <div class="img-overlay"><span>MediCare+ Network</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div id="lightbox" class="lightbox" onclick="closeLightbox()">
+  <span class="close-lightbox">&times;</span>
+  <img id="lightbox-img" src="" alt="Enlarged View">
+</div>
+
+<!-- CONTACT -->
+<section id="contact" class="section reveal">
+    <div class="container">
+        <h2 class="section-title">Contact Us</h2>
+        <p class="section-sub">We are available 24/7 to provide world-class medical support across our network.</p>
+        
+        <div class="contact-wrapper">
+            <div class="contact-card emergency">
+                <div class="contact-icon">🚑</div>
+                <h3>24/7 Emergency</h3>
+                <p>Managed by expert intensivists across 8 major cities.</p>
+                <a href="tel:+919391361665" class="contact-link">+91 9391361665</a>
+            </div>
+
+            <div class="contact-card">
+                <div class="contact-icon">📍</div>
+                <h3>Our Location</h3>
+                <p>City Center, India</p>
+                <a href="https://maps.google.com" target="_blank" class="contact-link">View on Maps</a>
+            </div>
+
+            <div class="contact-card">
+                <div class="contact-icon">📧</div>
+                <h3>Email Support</h3>
+                <p>For reports and general inquiries.</p>
+                <a href="mailto:support@medicareplus.com" class="contact-link">support@medicareplus.com</a>
+            </div>
+        </div>
+    </div>
+</section>
+</div>
+</section>
+
+<footer>© 2026 MediCare+. All Rights Reserved.</footer>
+
+
+
+<!-- LIGHTBOX -->
+
+
+<script src="script.js"></script>
+</body>
+</html> 

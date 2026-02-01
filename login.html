@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Login | MediCare+</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="auth-body">
+
+  <div class="auth-card">
+    <div class="auth-header">
+      <h1>MediCare<span>+</span></h1>
+      <p>Please login to continue</p>
+    </div>
+
+    <div class="input-group">
+      <input type="text" id="loginName" required />
+      <label>Full Name</label>
+    </div>
+
+    <div class="input-group">
+      <input type="tel" id="loginPhone" required />
+      <label>Phone Number</label>
+    </div>
+
+    <button class="auth-btn" onclick="loginUser()">Login</button>
+
+    <p class="auth-note">
+      🔒 Your details are safe with us
+    </p>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

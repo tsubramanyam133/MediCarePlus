@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Book Appointment | MediCare+</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style.css">
+
+  <!-- Prevent cache -->
+  <meta http-equiv="Cache-Control" content="no-store" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+</head>
+<body>
+
+<!-- ================= LOADING POPUP ================= -->
+<div class="popup" id="loadingPopup" style="display:none">
+  <div class="popup-box loading-box">
+    
+    <div class="loader-wrapper">
+      <div class="circle-ring"></div>
+      
+      <div class="hospital-cross">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="3" y="3" width="18" height="18" rx="4" stroke="#e74c3c" stroke-width="2.5"/>
+          <path d="M12 8V16M8 12H16" stroke="#e74c3c" stroke-width="3" stroke-linecap="round"/>
+        </svg>
+      </div>
+    </div>
+    
+    <p class="loading-text">Booking your appointment<span class="dots">...</span></p>
+  </div>
+</div>
+    
+<!-- ================= CONFIRMATION CARD ================= -->
+<div class="popup" id="confirmCard" style="display:none">
+  <div class="popup-box confirm-card">
+
+    <div class="success-icon">✔</div>
+    <h2>Appointment Confirmed</h2>
+
+    <div class="confirm-details">
+      <p><strong>Appointment Details:</strong></p>
+      <p><strong>Patient Name:</strong><span id="cName"></span></p>
+      <p><strong>Phone No:</strong><span id="cPhone"></span> </p>
+      <p><strong>City:</strong> <span id="cCity"></span></p>
+      <p><strong>Department:</strong> <span id="cDept"></span></p>
+      <p><strong>Doctor:</strong> <span id="cDoctor"></span></p>
+      <p><strong>Date:</strong> <span id="cDate"></span></p>
+      <p><strong>Slot:</strong> <span id="cSlot"></span></p>
+    </div>
+
+    <button class="btn done-btn" onclick="closeConfirmCard()">
+      Done
+    </button>
+  </div>
+</div>
+
+<!-- ================= HEADER ================= -->
+
+
+<!-- ================= APPOINTMENT FORM ================= -->
+<section class="appointment-page">
+<header class="simple-header">
+  <h2>Book an Appointment</h2>
+</header>
+  <select id="city">
+  <option value="">Select City</option>
+  <option value="Bangalore">Bangalore</option>
+  <option value="Hyderabad">Hyderabad</option>
+  <option value="Kadapa">Kadapa</option>
+  <option value="Tirupati">Tirupati</option>
+  <option value="Ananthapur">Ananthapur</option>
+  <option value="Kurnool">Kurnool</option>
+  <option value="Pune">Pune</option>
+  <option value="Ahmedabad">Ahmedabad</option>
+</select>
+
+
+  <select id="dept" required>
+    <option value="">Select Specialty</option>
+  </select>
+
+  <select id="doctor" required>
+    <option value="">Select Doctor</option>
+  </select>
+
+  <input type="date" id="date" required>
+
+  <select id="slot" required>
+    <option value="">Select Slot</option>
+  </select>
+
+  <button class="btn confirm-btn" onclick="confirmAppointment()">
+    Confirm Appointment
+  </button>
+
+</section>
+
+<script src="script.js"></script>
+</body>
+</html>
