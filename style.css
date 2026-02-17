@@ -427,7 +427,7 @@ body {
 
 .auth-body {
   min-height: 100vh;
-  background: linear-gradient(135deg, #0d6efd, #00c6ff);
+  background: url("./images/bg.png") no-repeat center/cover;
   display: flex;
   align-items: center;
   justify-content: center;
