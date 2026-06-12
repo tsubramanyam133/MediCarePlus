@@ -34,6 +34,7 @@ const AppointmentPage = () => {
   const [loadingPopup, setLoadingPopup] = useState(false);
   const [confirmCard, setConfirmCard] = useState(false);
   const [locked, setLocked] = useState(false);
+  const [file, setFile] = useState(null);
 
   useEffect(() => {
     if (!user) {
@@ -104,14 +105,18 @@ const AppointmentPage = () => {
     setLoadingPopup(true);
     
     try {
-      await createAppointment({
-        userId: user ? user._id : 'mock',
-        doctorName: doctor,
-        city,
-        dept,
-        date,
-        slot
-      });
+      const formData = new FormData();
+      formData.append('userId', user ? user._id : 'mock');
+      formData.append('doctorName', doctor);
+      formData.append('city', city);
+      formData.append('dept', dept);
+      formData.append('date', date);
+      formData.append('slot', slot);
+      if (file) {
+        formData.append('file', file);
+      }
+
+      await createAppointment(formData);
 
       setTimeout(() => {
         setLoadingPopup(false);
@@ -120,7 +125,7 @@ const AppointmentPage = () => {
 
     } catch (err) {
       setLoadingPopup(false);
-      alert("Error booking appointment");
+      alert("Error booking appointment: " + err.message);
     }
   };
 
@@ -159,6 +164,24 @@ const AppointmentPage = () => {
             <option value="">Select Slot</option>
             {availableSlots.map(s => <option key={s} value={s}>{s}</option>)}
           </select>
+
+          <div style={{ width: '90%', display: 'flex', flexDirection: 'column', gap: '5px', marginTop: '10px', marginBottom: '10px' }}>
+            <label style={{ fontWeight: '500', color: '#fff', alignSelf: 'flex-start', fontSize: '14px' }}>Upload Previous Reports / Prescriptions (Optional PDF)</label>
+            <input 
+              type="file" 
+              accept=".pdf" 
+              onChange={(e) => setFile(e.target.files[0])} 
+              style={{ 
+                padding: '10px', 
+                background: 'rgba(255, 255, 255, 0.2)', 
+                color: '#fff', 
+                borderRadius: '8px', 
+                border: '1px solid rgba(255,255,255,0.3)',
+                fontSize: '14px',
+                cursor: 'pointer'
+              }} 
+            />
+          </div>
 
           <button type="submit" className="btn" style={{ width: '90%', fontSize: '18px', marginTop: '10px' }}>Confirm Appointment</button>
         </form>

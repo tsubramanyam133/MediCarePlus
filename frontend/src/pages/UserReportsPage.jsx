@@ -41,7 +41,7 @@ const UserReportsPage = () => {
     if (lowerText.includes('weight') || lowerText.includes('obesity')) {
       suggestions.push("Engage in at least 30 minutes of moderate aerobic activity daily and consult a nutritionist.");
     }
-    
+
     if (suggestions.length === 0) {
       suggestions.push("Maintain a healthy lifestyle with a balanced diet, adequate hydration, and regular exercise.");
     }
@@ -60,12 +60,12 @@ const UserReportsPage = () => {
   return (
     <div className="user-reports-page" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: '#f8f9fa' }}>
       <Navbar />
-      
+
       <div className="container" style={{ flex: 1, padding: '2rem 1rem', maxWidth: '900px', margin: '0 auto', width: '100%' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '2rem', borderBottom: '2px solid #e0e0e0', paddingBottom: '1rem' }}>
           <div>
             <h2 style={{ color: '#0d47a1', marginBottom: '0.5rem' }}>My Health Reports</h2>
-            <p style={{ color: '#666', margin: 0 }}>View your diagnostic analysis and AI-driven suggestions.</p>
+            <p style={{ color: '#666', margin: 0 }}>View your diagnostic analysis and  suggestions.</p>
           </div>
         </div>
 
@@ -86,14 +86,14 @@ const UserReportsPage = () => {
                     Uploaded by Clinic
                   </span>
                 </div>
-                
+
                 <div style={{ padding: '2rem' }}>
                   <div style={{ marginBottom: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <h4 style={{ color: '#0d47a1', margin: 0, fontSize: '1.2rem' }}>Patient: {report.patientName || user.name}</h4>
                     {report.attachedFileUrl && (
-                      <a 
+                      <a
                         href={report.attachedFileUrl.startsWith('data:') ? report.attachedFileUrl : `http://localhost:5000${report.attachedFileUrl}`}
-                        target="_blank" 
+                        target="_blank"
                         rel="noopener noreferrer"
                         download={report.attachedFileUrl.startsWith('data:') ? 'Attached_Report_File' : undefined}
                         className="btn small"
@@ -110,9 +110,9 @@ const UserReportsPage = () => {
                       <span style={{ fontWeight: 'bold', color: report.healthScore < 50 ? '#d32f2f' : '#2e7d32' }}>{report.healthScore}%</span>
                     </div>
                     <div style={{ width: '100%', height: '12px', background: '#e0e0e0', borderRadius: '6px', overflow: 'hidden' }}>
-                      <div style={{ 
-                        height: '100%', 
-                        width: `${report.healthScore}%`, 
+                      <div style={{
+                        height: '100%',
+                        width: `${report.healthScore}%`,
                         background: report.healthScore < 50 ? '#d32f2f' : report.healthScore < 75 ? '#fbc02d' : '#2e7d32',
                         transition: 'width 1s ease-in-out'
                       }}></div>

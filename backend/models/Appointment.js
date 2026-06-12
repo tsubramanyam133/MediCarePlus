@@ -6,7 +6,9 @@ const AppointmentSchema = new mongoose.Schema({
   city: { type: String, required: true },
   dept: { type: String, required: true },
   date: { type: String, required: true },
-  slot: { type: String, required: true }
+  slot: { type: String, required: true },
+  attachedFileUrl: { type: String }
 });
 
 module.exports = mongoose.model('Appointment', AppointmentSchema);
+

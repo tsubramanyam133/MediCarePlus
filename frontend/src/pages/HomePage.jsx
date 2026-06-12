@@ -46,7 +46,7 @@ const HomePage = () => {
   return (
     <>
       <Navbar />
-      
+
       {/* HERO */}
       <section id="home" className="hero">
         <div className="hero-text">
@@ -63,7 +63,7 @@ const HomePage = () => {
             <h2>About Our Hospital</h2>
             <p className="section-sub">
               MediCare+ is a premier multi-speciality hospital network delivering world-class
-              healthcare with expert doctors and modern technology. Our facilities are equipped 
+              healthcare with expert doctors and modern technology. Our facilities are equipped
               with high-resolution imaging and modern surgical suites to ensure precision.
             </p>
             <a href="/infrastructure" className="btn outline" onClick={(e) => { e.preventDefault(); navigate('/infrastructure'); }}>Learn More About Our Tech</a>
@@ -89,7 +89,7 @@ const HomePage = () => {
       </section>
 
       {/* SERVICES */}
-      <section id="services" className="section reveal"> 
+      <section id="services" className="section reveal">
         <div className="container excellence-main-wrapper">
           <div className="excellence-header">
             <h2>Why Choose MediCare+</h2>
@@ -239,13 +239,13 @@ const HomePage = () => {
               <div className="contact-icon">📍</div>
               <h3>Our Location</h3>
               <p>City Center, India</p>
-              <a href="https://maps.google.com" target="_blank" rel="noreferrer" className="contact-link">View on Maps</a>
+              <a href="https://www.google.com/maps?q=14.463068770917040,78.823364672300170" target="_blank" rel="noreferrer" className="contact-link">View on Maps</a>
             </div>
             <div className="contact-card">
               <div className="contact-icon">📧</div>
               <h3>Email Support</h3>
               <p>For reports and general inquiries.</p>
-              <a href="mailto:support@medicareplus.com" className="contact-link">support@medicareplus.com</a>
+              <a href="mailto:tsubramanyam071@gmail.com" className="contact-link">support@medicareplus.com</a>
             </div>
           </div>
         </div>

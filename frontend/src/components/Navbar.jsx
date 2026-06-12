@@ -59,7 +59,7 @@ const Navbar = () => {
             <div className="profile-wrapper" id="profileWrapper" style={{ display: 'block' }}>
               <div className="profile-btn" id="profileBtn" onClick={() => setProfileDropdown(!profileDropdown)} style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', color: 'white', fontWeight: 'bold' }}>
                 <span className="icon" style={{ marginRight: '8px' }}>👤</span> 
-                <strong><span id="profileName">{user.name}</span></strong>
+                <strong><span id="profileName">{user.username || user.name}</span></strong>
               </div>
 
               {profileDropdown && (

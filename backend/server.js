@@ -3,6 +3,8 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const multer = require('multer');
 const path = require('path');
+const bcrypt = require('bcryptjs');
+const nodemailer = require('nodemailer');
 require('dotenv').config();
 
 const User = require('./models/User');
@@ -29,77 +31,243 @@ mongoose.connect(MONGO_URI)
   .then(() => console.log('MongoDB connected'))
   .catch(err => console.error('MongoDB connection error:', err));
 
-// Simulated OTP Store
-const otpStore = new Map();
-
-// Fast2SMS Setup (Optional)
-const FAST2SMS_API_KEY = process.env.FAST2SMS_API_KEY;
-
-// Auth Routes
-app.post('/api/auth/request-otp', async (req, res) => {
-  const { phone } = req.body;
-  if (!phone) return res.status(400).json({ message: 'Phone is required' });
-  
-  // Generate a random 4 digit OTP
-  const otp = Math.floor(1000 + Math.random() * 9000).toString();
-  otpStore.set(phone, otp);
-  
-  if (FAST2SMS_API_KEY) {
-    try {
-      // Fast2SMS API Call
-      const response = await fetch('https://www.fast2sms.com/dev/bulkV2', {
-        method: 'POST',
-        headers: {
-          'authorization': FAST2SMS_API_KEY,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          route: "q",
-          message: `Your MediCare+ login OTP is: ${otp}`,
-          language: "english",
-          flash: 0,
-          numbers: phone
-        })
-      });
-
-      const data = await response.json();
-      
-      if (data.return) {
-        console.log(`[FAST2SMS SENT] OTP sent to ${phone}`);
-        return res.json({ message: 'OTP sent successfully via SMS' });
-      } else {
-        console.error('[FAST2SMS ERROR]', data.message);
-        throw new Error(data.message[0] || 'Fast2SMS failed');
-      }
-    } catch (error) {
-      console.error('[SMS ERROR] Failed to send SMS:', error.message);
-      return res.status(500).json({ message: 'Failed to send OTP via SMS. Please check your Fast2SMS balance or API key.' });
-    }
-  } else {
-    console.error('[SMS ERROR] FAST2SMS_API_KEY is not configured in .env');
-    return res.status(500).json({ message: 'SMS service is not configured on the server.' });
+// Email Transporter Setup
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS
   }
 });
 
-app.post('/api/auth/verify-otp', async (req, res) => {
-  // In Firebase architecture, if this endpoint is called, 
-  // it means the frontend already verified the SMS via Google.
-  const { name, phone, role } = req.body;
-  if (!phone) return res.status(400).json({ message: 'Phone is required' });
-  
-  try {
-    let user = await User.findOne({ phone });
-    if (!user) {
-      user = new User({ name: name || 'User', phone, role: role || 'user' });
-      await user.save();
-    } else if (role && user.role !== role) {
-      // If user logs in with a different role during creation/simulation
-      user.role = role;
-      await user.save();
+// Mail Helper Function
+const sendMail = async ({ to, subject, text, html, attachments }) => {
+  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+    console.log('----------------- EMAIL MOCK LOG -----------------');
+    console.log(`To: ${to}`);
+    console.log(`Subject: ${subject}`);
+    console.log(`Body: ${text}`);
+    if (attachments && attachments.length > 0) {
+      console.log(`Attachments: ${attachments.map(a => a.filename).join(', ')}`);
     }
-    res.json({ user });
+    console.log('--------------------------------------------------');
+    return;
+  }
+  try {
+    await transporter.sendMail({
+      from: process.env.EMAIL_USER,
+      to,
+      subject,
+      text,
+      html,
+      attachments
+    });
+    console.log(`[EMAIL SENT] to ${to}`);
+  } catch (err) {
+    console.error(`[EMAIL ERROR] failed to send to ${to}:`, err.message);
+  }
+};
+
+// Simulated OTP Store
+const otpStore = new Map();
+
+// Auth Routes
+
+// Send Register OTP
+app.post('/api/auth/send-otp', async (req, res) => {
+  const { email } = req.body;
+  if (!email) return res.status(400).json({ message: 'Email is required' });
+
+  try {
+    const normalizedEmail = email.trim().toLowerCase();
+    // Generate a random 6 digit OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    otpStore.set(normalizedEmail, { otp, expiresAt: Date.now() + 10 * 60 * 1000 });
+
+    await sendMail({
+      to: normalizedEmail,
+      subject: 'MediCare+ Registration Verification OTP',
+      text: `Your MediCare+ email verification OTP is: ${otp}. It is valid for 10 minutes.`,
+      html: `
+        <div style="font-family: Arial, sans-serif; padding: 20px; border: 1px solid #eee; border-radius: 8px; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #0d47a1; text-align: center;">MediCare<span style="color: #ff4081;">+</span></h2>
+          <hr style="border: 0; border-top: 1px solid #eee; margin-bottom: 20px;" />
+          <p>Hello,</p>
+          <p>Thank you for choosing MediCare+. Please use the verification code below to complete your registration:</p>
+          <div style="font-size: 24px; font-weight: bold; text-align: center; color: #ff4081; padding: 15px; background: #f8f9fa; border-radius: 6px; letter-spacing: 4px; margin: 20px 0;">
+            ${otp}
+          </div>
+          <p style="font-size: 0.9rem; color: #666;">This OTP is valid for 10 minutes. If you did not request this, please ignore this email.</p>
+        </div>
+      `
+    });
+
+    res.json({ message: 'OTP sent successfully to email' });
+  } catch (err) {
+    console.error('Send OTP error:', err);
+    res.status(500).json({ message: 'Failed to send OTP' });
+  }
+});
+
+// Register User
+app.post('/api/auth/register', async (req, res) => {
+  const { username, email, phone, password, role, otp } = req.body;
+  if (!username || !email || !phone || !password || !otp) {
+    return res.status(400).json({ message: 'All fields are required' });
+  }
+
+  const normalizedEmail = email.trim().toLowerCase();
+  const storedOtpData = otpStore.get(normalizedEmail);
+  
+  console.log("Registering user:", { username, email, normalizedEmail, phone, otp });
+  console.log("Stored OTP data:", storedOtpData);
+  if (storedOtpData) {
+    console.log("Check matches:", { otpMatch: storedOtpData.otp === otp, isExpired: storedOtpData.expiresAt < Date.now(), expiresAt: new Date(storedOtpData.expiresAt).toLocaleTimeString(), now: new Date().toLocaleTimeString() });
+  }
+
+  if (!storedOtpData || storedOtpData.otp !== otp || storedOtpData.expiresAt < Date.now()) {
+    return res.status(400).json({ message: 'Invalid or expired OTP' });
+  }
+
+  // Clear OTP from store
+  otpStore.delete(normalizedEmail);
+
+  try {
+    // Check if user already exists
+    const existingUser = await User.findOne({ $or: [{ username }, { email }, { phone }] });
+    if (existingUser) {
+      return res.status(400).json({ message: 'Username, Email, or Phone already exists' });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const newUser = new User({
+      username,
+      name: username, // compatibility mapping
+      email,
+      phone,
+      password: hashedPassword,
+      role: role || 'user'
+    });
+
+    await newUser.save();
+
+    const userObj = newUser.toObject();
+    delete userObj.password;
+
+    res.status(201).json({ user: userObj });
   } catch (error) {
-    res.status(500).json({ message: 'Server error' });
+    console.error('Register error:', error);
+    res.status(500).json({ message: 'Server error during registration' });
+  }
+});
+
+// Login User
+app.post('/api/auth/login', async (req, res) => {
+  const { email, password } = req.body;
+  if (!email || !password) {
+    return res.status(400).json({ message: 'Email and password are required' });
+  }
+
+  const normalizedEmail = email.trim().toLowerCase();
+  try {
+    const user = await User.findOne({ email: normalizedEmail });
+    if (!user) {
+      return res.status(400).json({ message: 'Invalid email or password' });
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ message: 'Invalid email or password' });
+    }
+
+    const userObj = user.toObject();
+    delete userObj.password;
+
+    res.json({ user: userObj });
+  } catch (error) {
+    console.error('Login error:', error);
+    res.status(500).json({ message: 'Server error during login' });
+  }
+});
+
+// Send Forgot Password OTP
+app.post('/api/auth/forgot-password', async (req, res) => {
+  const { email } = req.body;
+  if (!email) return res.status(400).json({ message: 'Email is required' });
+
+  try {
+    const normalizedEmail = email.trim().toLowerCase();
+    // Check if user exists
+    const user = await User.findOne({ email: normalizedEmail });
+    if (!user) {
+      return res.status(404).json({ message: 'No account found with this email' });
+    }
+
+    // Generate a random 6 digit OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    otpStore.set(normalizedEmail, { otp, expiresAt: Date.now() + 10 * 60 * 1000 });
+
+    await sendMail({
+      to: normalizedEmail,
+      subject: 'MediCare+ Password Reset OTP',
+      text: `Your MediCare+ password reset OTP is: ${otp}. It is valid for 10 minutes.`,
+      html: `
+        <div style="font-family: Arial, sans-serif; padding: 20px; border: 1px solid #eee; border-radius: 8px; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #0d47a1; text-align: center;">MediCare<span style="color: #ff4081;">+</span></h2>
+          <hr style="border: 0; border-top: 1px solid #eee; margin-bottom: 20px;" />
+          <p>Hello,</p>
+          <p>We received a request to reset your MediCare+ password. Please use the verification code below to complete the reset process:</p>
+          <div style="font-size: 24px; font-weight: bold; text-align: center; color: #ff4081; padding: 15px; background: #f8f9fa; border-radius: 6px; letter-spacing: 4px; margin: 20px 0;">
+            ${otp}
+          </div>
+          <p style="font-size: 0.9rem; color: #666;">This OTP is valid for 10 minutes. If you did not request a password reset, please ignore this email.</p>
+        </div>
+      `
+    });
+
+    res.json({ message: 'OTP sent successfully to email' });
+  } catch (err) {
+    console.error('Forgot password error:', err);
+    res.status(500).json({ message: 'Failed to send verification OTP' });
+  }
+});
+
+// Reset Password
+app.post('/api/auth/reset-password', async (req, res) => {
+  const { email, otp, newPassword } = req.body;
+  if (!email || !otp || !newPassword) {
+    return res.status(400).json({ message: 'All fields are required' });
+  }
+
+  const normalizedEmail = email.trim().toLowerCase();
+  const storedOtpData = otpStore.get(normalizedEmail);
+
+  console.log("Resetting password for:", { email, normalizedEmail, otp });
+  console.log("Stored OTP data:", storedOtpData);
+
+  if (!storedOtpData || storedOtpData.otp !== otp || storedOtpData.expiresAt < Date.now()) {
+    return res.status(400).json({ message: 'Invalid or expired OTP' });
+  }
+
+  // Clear OTP from store
+  otpStore.delete(normalizedEmail);
+
+  try {
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    const updatedUser = await User.findOneAndUpdate(
+      { email: normalizedEmail },
+      { password: hashedPassword },
+      { new: true }
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.json({ message: 'Password reset successful' });
+  } catch (error) {
+    console.error('Reset password error:', error);
+    res.status(500).json({ message: 'Server error during password reset' });
   }
 });
 
@@ -120,7 +288,6 @@ app.get('/api/doctors', async (req, res) => {
 app.get('/api/doctors/:name', async (req, res) => {
   try {
     const doctorName = decodeURIComponent(req.params.name);
-    // Case insensitive regex search for exact name
     const doctor = await Doctor.findOne({ name: { $regex: new RegExp('^' + doctorName + '$', 'i') } });
     if (!doctor) return res.status(404).json({ message: 'Doctor not found' });
     res.json(doctor);
@@ -129,10 +296,15 @@ app.get('/api/doctors/:name', async (req, res) => {
   }
 });
 
-// Appointments Route
-app.post('/api/appointments', async (req, res) => {
+// Appointments Route with PDF attachment and confirmation email
+app.post('/api/appointments', upload.single('file'), async (req, res) => {
   const { userId, doctorName, city, dept, date, slot } = req.body;
+  const attachedFileUrl = req.file ? `/uploads/${req.file.filename}` : null;
   
+  if (!userId || !doctorName || !city || !dept || !date || !slot) {
+    return res.status(400).json({ message: 'All fields are required' });
+  }
+
   try {
     const appointment = new Appointment({
       user: userId,
@@ -140,11 +312,65 @@ app.post('/api/appointments', async (req, res) => {
       city,
       dept,
       date,
-      slot
+      slot,
+      attachedFileUrl
     });
     await appointment.save();
+
+    // Look up the patient user
+    const user = await User.findById(userId);
+    if (user && user.email) {
+      const attachments = [];
+      if (req.file) {
+        attachments.push({
+          filename: req.file.originalname,
+          path: req.file.path
+        });
+      }
+
+      await sendMail({
+        to: user.email,
+        subject: 'Appointment Confirmed - MediCare+',
+        text: `Hello ${user.username},\n\nYour appointment has been successfully booked!\n\nDetails:\n- Doctor: ${doctorName}\n- Hospital/City: ${city}\n- Department: ${dept}\n- Date: ${date}\n- Slot: ${slot}\n\nThank you for choosing MediCare+.`,
+        html: `
+          <div style="font-family: Arial, sans-serif; padding: 20px; border: 1px solid #eee; border-radius: 8px; max-width: 600px; margin: 0 auto;">
+            <h2 style="color: #0d47a1; text-align: center;">MediCare<span style="color: #ff4081;">+</span></h2>
+            <hr style="border: 0; border-top: 1px solid #eee; margin-bottom: 20px;" />
+            <h3 style="color: #2e7d32; text-align: center;">✔️ Appointment Confirmed</h3>
+            <p>Hello <strong>${user.username}</strong>,</p>
+            <p>You have successfully scheduled an appointment with us. Please review the details below:</p>
+            <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+              <tr style="background: #f8f9fa;">
+                <td style="padding: 10px; border: 1px solid #ddd; font-weight: bold;">Doctor</td>
+                <td style="padding: 10px; border: 1px solid #ddd;">${doctorName}</td>
+              </tr>
+              <tr>
+                <td style="padding: 10px; border: 1px solid #ddd; font-weight: bold;">Hospital / City</td>
+                <td style="padding: 10px; border: 1px solid #ddd;">${city}</td>
+              </tr>
+              <tr style="background: #f8f9fa;">
+                <td style="padding: 10px; border: 1px solid #ddd; font-weight: bold;">Department</td>
+                <td style="padding: 10px; border: 1px solid #ddd;">${dept}</td>
+              </tr>
+              <tr>
+                <td style="padding: 10px; border: 1px solid #ddd; font-weight: bold;">Date</td>
+                <td style="padding: 10px; border: 1px solid #ddd;">${date}</td>
+              </tr>
+              <tr style="background: #f8f9fa;">
+                <td style="padding: 10px; border: 1px solid #ddd; font-weight: bold;">Time Slot</td>
+                <td style="padding: 10px; border: 1px solid #ddd;">${slot}</td>
+              </tr>
+            </table>
+            <p style="font-size: 0.9rem; color: #666; text-align: center; margin-top: 30px;">Thank you for choosing MediCare+.</p>
+          </div>
+        `,
+        attachments
+      });
+    }
+
     res.status(201).json(appointment);
   } catch (error) {
+    console.error('Appointment booking error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 });
@@ -182,3 +408,4 @@ app.get('/api/reports/:phone', async (req, res) => {
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
+

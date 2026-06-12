@@ -1,70 +1,30 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { verifyOtp } from '../services/api';
-import { auth } from '../firebase';
-import { RecaptchaVerifier, signInWithPhoneNumber } from 'firebase/auth';
+import { loginUser } from '../services/api';
 
 const LoginPage = () => {
-  const [name, setName] = useState('');
-  const [phone, setPhone] = useState('');
-  const [role, setRole] = useState('user');
-  const [otp, setOtp] = useState('');
-  const [step, setStep] = useState(1);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const [message, setMessage] = useState('');
-  const [confirmationResult, setConfirmationResult] = useState(null);
+  const [loading, setLoading] = useState(false);
   
   const { login } = useAuth();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    // Initialize reCAPTCHA on component mount
-    if (!window.recaptchaVerifier) {
-      window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
-        'size': 'invisible',
-      });
-    }
-  }, []);
-
-  const handleRequestOtp = async (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     setError('');
-    setMessage('');
+    setLoading(true);
     
-    if (!name.trim() || !/^[6-9]\d{9}$/.test(phone.trim())) {
-      setError("Enter valid name & 10-digit phone number");
+    if (!email.trim() || !password.trim()) {
+      setError("Please enter your email and password");
+      setLoading(false);
       return;
     }
 
     try {
-      const formattedPhone = `+91${phone}`;
-      const appVerifier = window.recaptchaVerifier;
-      const confirmation = await signInWithPhoneNumber(auth, formattedPhone, appVerifier);
-      setConfirmationResult(confirmation);
-      setMessage('OTP Sent to your phone via Firebase!');
-      setStep(2);
-    } catch (err) {
-      console.error(err);
-      setError("Failed to send OTP via Firebase. Check console.");
-    }
-  };
-
-  const handleVerifyOtp = async (e) => {
-    e.preventDefault();
-    setError('');
-    
-    if (!otp.trim()) {
-      setError("Enter OTP");
-      return;
-    }
-
-    try {
-      // 1. Verify OTP with Firebase directly
-      await confirmationResult.confirm(otp);
-      
-      // 2. If Firebase succeeds, register/login user in MongoDB
-      const user = await verifyOtp(name, phone, role);
+      const user = await loginUser(email, password);
       login(user);
       
       if (user.role === 'nurse') {
@@ -74,64 +34,49 @@ const LoginPage = () => {
       }
     } catch (err) {
       console.error(err);
-      setError("Invalid OTP. Try again.");
+      setError(err.message || "Invalid email or password");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div className="auth-body">
-      <div className="auth-card" style={{ padding: '2rem', maxWidth: '400px', margin: 'auto', marginTop: '10vh', background: 'white', borderRadius: '12px', boxShadow: '0 4px 20px rgba(0,0,0,0.1)' }}>
-        <div className="auth-header" style={{ textAlign: 'center', marginBottom: '2rem' }}>
-          <h1 style={{ color: '#0d47a1', fontSize: '2rem' }}>MediCare<span style={{ color: '#ff4081' }}>+</span></h1>
-          <p style={{ color: '#666' }}>{step === 1 ? 'Sign in to your account' : 'Verify your phone'}</p>
+      <div className="auth-card">
+        <div className="auth-header">
+          <h1>MediCare<span>+</span></h1>
+          <p>Sign in to your account</p>
         </div>
         
-        {step === 1 ? (
-          <form onSubmit={handleRequestOtp} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-            {error && <p style={{ color: 'red', textAlign: 'center', margin: 0 }}>{error}</p>}
-            
-            <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', marginBottom: '1rem' }}>
-              <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
-                <input type="radio" value="user" checked={role === 'user'} onChange={() => setRole('user')} />
-                Patient
-              </label>
-              <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
-                <input type="radio" value="nurse" checked={role === 'nurse'} onChange={() => setRole('nurse')} />
-                Nurse
-              </label>
-            </div>
+        {error && <p style={{ color: '#c62828', textAlign: 'center', margin: '0 0 1.5rem 0', background: '#ffebee', padding: '8px', borderRadius: '6px', fontSize: '0.9rem' }}>{error}</p>}
+        
+        <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+          <div className="input-group">
+            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder=" " />
+            <label>Email Address</label>
+          </div>
+          
+          <div className="input-group">
+            <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required placeholder=" " />
+            <label>Password</label>
+          </div>
 
-            <div className="input-group">
-              <input type="text" value={name} onChange={(e) => setName(e.target.value)} required placeholder=" " />
-              <label>Full Name</label>
-            </div>
-            
-            <div className="input-group">
-              <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} pattern="[6-9][0-9]{9}" required placeholder=" " />
-              <label>Phone Number</label>
-            </div>
-            
-            <div id="recaptcha-container"></div>
-            
-            <button type="submit" className="btn" style={{ width: '100%' }}>Request OTP</button>
-          </form>
-        ) : (
-          <form onSubmit={handleVerifyOtp} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-            {message && <p style={{ color: 'green', textAlign: 'center', margin: 0, fontSize: '0.9rem' }}>{message}</p>}
-            {error && <p style={{ color: 'red', textAlign: 'center', margin: 0 }}>{error}</p>}
-            
-            <div className="input-group">
-              <input type="text" value={otp} onChange={(e) => setOtp(e.target.value)} required placeholder=" " />
-              <label>Enter OTP</label>
-            </div>
-            
-            <button type="submit" className="btn" style={{ width: '100%' }}>Verify & Login</button>
-            <button type="button" onClick={() => setStep(1)} className="btn outline" style={{ width: '100%', marginTop: '-0.5rem' }}>Back</button>
-          </form>
-        )}
+          <div style={{ textAlign: 'right', marginTop: '-0.8rem', marginBottom: '0.5rem' }}>
+            <Link to="/forgot-password" style={{ color: '#0d6efd', fontSize: '0.85rem', textDecoration: 'none', fontWeight: '500' }}>Forgot Password?</Link>
+          </div>
+          
+          <button type="submit" className="auth-btn" disabled={loading}>
+            {loading ? 'Signing In...' : 'Verify & Login'}
+          </button>
+
+          <p className="auth-note">
+            Don't have an account? <Link to="/register">Register here</Link>
+          </p>
+        </form>
       </div>
     </div>
   );
 };
 
 export default LoginPage;
+
