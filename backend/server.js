@@ -50,12 +50,19 @@ const sendMail = async ({ to, subject, text, html, attachments }) => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ to, subject, body: text, html })
       });
-      const data = await response.json();
-      if (data.success) {
-        console.log(`[EMAIL SENT VIA APPS SCRIPT] to ${to}`);
-        return;
+      
+      const contentType = response.headers.get('content-type') || '';
+      if (contentType.includes('application/json')) {
+        const data = await response.json();
+        if (data.success) {
+          console.log(`[EMAIL SENT VIA APPS SCRIPT] to ${to}`);
+          return;
+        } else {
+          console.error(`[APPS SCRIPT EMAIL ERROR] to ${to}:`, data.error);
+        }
       } else {
-        console.error(`[APPS SCRIPT EMAIL ERROR] to ${to}:`, data.error);
+        const responseText = await response.text();
+        console.error(`[APPS SCRIPT EMAIL ERROR] expected JSON, received: ${contentType}. Body: ${responseText.substring(0, 250)}`);
       }
     } catch (err) {
       console.error(`[APPS SCRIPT FETCH ERROR] failed to send to ${to}:`, err.message);
