@@ -1,5 +1,4 @@
-const hostname = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
-const API_BASE = `http://${hostname}:5000/api`;
+const API_BASE = import.meta.env.VITE_API_URL || `http://${typeof window !== 'undefined' ? window.location.hostname : 'localhost'}:5000/api`;
 
 export const loginUser = async (email, password) => {
   const res = await fetch(`${API_BASE}/auth/login`, {
