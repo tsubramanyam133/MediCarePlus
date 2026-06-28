@@ -72,7 +72,9 @@ export const createReport = async (formData) => {
 };
 
 export const getReports = async (phone) => {
-  const res = await fetch(`${API_BASE}/reports/${phone}`);
+  const res = await fetch(`${API_BASE}/reports/${phone}`, {
+    cache: 'no-store'
+  });
   const data = await res.json();
   if (!res.ok) throw new Error(data.message || 'Failed to fetch reports');
   return data;

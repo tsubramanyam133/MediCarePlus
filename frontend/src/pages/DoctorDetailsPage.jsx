@@ -30,7 +30,7 @@ const DoctorDetailsPage = () => {
 
         <div className="doctor-profile-card">
           <div className="doctor-profile-image">
-            <img src={'/' + doctor.img} alt={doctor.name} onError={(e) => { e.target.src = '/images/default-doctor.jpg'; }} />
+            <img src={doctor.img?.startsWith('http') ? doctor.img : '/' + doctor.img} alt={doctor.name} onError={(e) => { e.target.src = '/images/default-doctor.jpg'; }} />
           </div>
 
           <div className="doctor-profile-info">

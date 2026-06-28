@@ -21,6 +21,24 @@ const Navbar = () => {
     }, 1200);
   };
 
+  const handleHashClick = (e, targetId) => {
+    e.preventDefault();
+    setMenuActive(false);
+    navigate(`/${targetId}`);
+    
+    // Remove timeout and scroll immediately if element exists
+    const el = document.getElementById(targetId);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth' });
+    } else {
+      // Fallback if lazy-loaded
+      requestAnimationFrame(() => {
+        const lazyEl = document.getElementById(targetId);
+        if (lazyEl) lazyEl.scrollIntoView({ behavior: 'smooth' });
+      });
+    }
+  };
+
   return (
     <>
       {logoutLoading && (
@@ -33,7 +51,7 @@ const Navbar = () => {
       )}
 
       <header className="navbar">
-        <Link to="/" className="logo-container" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
+        <Link to="/home" className="logo-container" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
           <img src="/images/logo.jpg" alt="MediCare+ Logo" className="nav-logo" style={{ width: '40px', height: '40px', borderRadius: '50%', marginRight: '10px' }} />
           <div className="logo-text" style={{ color: 'white', fontSize: '24px', fontWeight: 'bold' }}>MediCare<span style={{ color: '#ffe600' }}>+</span></div>
         </Link>
@@ -43,10 +61,10 @@ const Navbar = () => {
         </div>
 
           <nav className={`nav-menu ${menuActive ? 'active' : ''}`} id="navMenu">
-          <Link to="/" onClick={() => setMenuActive(false)}>Home</Link>
-          <a href="/#about" onClick={() => setMenuActive(false)}>About</a>
-          <a href="/#services" onClick={() => setMenuActive(false)}>Services</a>
-          <a href="/#doctors" onClick={() => setMenuActive(false)}>Doctors</a>
+          <Link to="/home" onClick={() => setMenuActive(false)}>Home</Link>
+          <a href="/" onClick={(e) => handleHashClick(e, 'about')}>About</a>
+          <a href="/" onClick={(e) => handleHashClick(e, 'services')}>Services</a>
+          <a href="/" onClick={(e) => handleHashClick(e, 'doctors')}>Doctors</a>
           {user && user.role === 'nurse' && (
             <Link to="/nurse-dashboard" onClick={() => setMenuActive(false)} style={{ color: '#ffeb3b' }}>Dashboard</Link>
           )}
@@ -58,7 +76,11 @@ const Navbar = () => {
           {user && (
             <div className="profile-wrapper" id="profileWrapper" style={{ display: 'block' }}>
               <div className="profile-btn" id="profileBtn" onClick={() => setProfileDropdown(!profileDropdown)} style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', color: 'white', fontWeight: 'bold' }}>
-                <span className="icon" style={{ marginRight: '8px' }}>👤</span> 
+                <img 
+                  src={`https://api.dicebear.com/9.x/avataaars/svg?seed=${user.username || user.name}&mouth=smile`} 
+                  alt="Profile" 
+                  style={{ width: '36px', height: '36px', borderRadius: '50%', marginRight: '8px', border: '2px solid white', objectFit: 'cover', background: '#e0e0e0' }} 
+                />
                 <strong><span id="profileName">{user.username || user.name}</span></strong>
               </div>
 

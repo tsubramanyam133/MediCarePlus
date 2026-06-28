@@ -166,14 +166,14 @@ const AppointmentPage = () => {
           </select>
 
           <div style={{ width: '90%', display: 'flex', flexDirection: 'column', gap: '5px', marginTop: '10px', marginBottom: '10px' }}>
-            <label style={{ fontWeight: '500', color: '#fff', alignSelf: 'flex-start', fontSize: '14px' }}>Upload Previous Reports / Prescriptions (Optional PDF)</label>
+            <label style={{ fontWeight: '500', color: '#0c1010', alignSelf: 'flex-start', fontSize: '14px' }}>Upload Previous Reports / Prescriptions (Optional PDF)</label>
             <input 
               type="file" 
               accept=".pdf" 
               onChange={(e) => setFile(e.target.files[0])} 
               style={{ 
                 padding: '10px', 
-                background: 'rgba(255, 255, 255, 0.2)', 
+                background: 'orange', 
                 color: '#fff', 
                 borderRadius: '8px', 
                 border: '1px solid rgba(255,255,255,0.3)',
