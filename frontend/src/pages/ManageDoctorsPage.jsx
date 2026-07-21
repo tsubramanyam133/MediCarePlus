@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { API_BASE } from '../services/api';
 
 const ManageDoctorsPage = () => {
   const [doctors, setDoctors] = useState([]);
@@ -37,7 +38,7 @@ const ManageDoctorsPage = () => {
 
   const fetchDoctors = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/doctors');
+      const response = await axios.get(`${API_BASE}/doctors`);
       setDoctors(response.data);
       setFilteredDoctors(response.data);
       
@@ -51,7 +52,7 @@ const ManageDoctorsPage = () => {
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to delete this doctor?")) {
       try {
-        await axios.delete(`http://localhost:5000/api/doctors/${id}`);
+        await axios.delete(`${API_BASE}/doctors/${id}`);
         fetchDoctors();
       } catch (err) {
         console.error('Error deleting doctor:', err);
@@ -151,9 +152,9 @@ const ManageDoctorsPage = () => {
       };
 
       if (editingDoctorId) {
-        await axios.put(`http://localhost:5000/api/doctors/${editingDoctorId}`, payload);
+        await axios.put(`${API_BASE}/doctors/${editingDoctorId}`, payload);
       } else {
-        await axios.post('http://localhost:5000/api/doctors', payload);
+        await axios.post(`${API_BASE}/doctors`, payload);
       }
 
       closeModal();

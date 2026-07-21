@@ -1,4 +1,8 @@
-const API_BASE = import.meta.env.VITE_API_URL || `http://${typeof window !== 'undefined' ? window.location.hostname : 'localhost'}:5000/api`;
+export const BACKEND_URL = import.meta.env.VITE_API_URL 
+  ? import.meta.env.VITE_API_URL.replace(/\/api\/?$/, '') 
+  : `http://${typeof window !== 'undefined' ? window.location.hostname : 'localhost'}:5000`;
+
+export const API_BASE = import.meta.env.VITE_API_URL || `${BACKEND_URL}/api`;
 
 export const loginUser = async (email, password) => {
   const res = await fetch(`${API_BASE}/auth/login`, {

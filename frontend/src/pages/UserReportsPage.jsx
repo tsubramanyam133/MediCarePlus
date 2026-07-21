@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import { getReports } from '../services/api';
+import { getReports, BACKEND_URL } from '../services/api';
 
 const UserReportsPage = () => {
   const { user } = useAuth();
@@ -92,7 +92,7 @@ const UserReportsPage = () => {
                     <h4 style={{ color: '#0d47a1', margin: 0, fontSize: '1.2rem' }}>Patient: {report.patientName || user.name}</h4>
                     {report.attachedFileUrl && (
                       <a
-                        href={report.attachedFileUrl.startsWith('data:') ? report.attachedFileUrl : `http://localhost:5000${report.attachedFileUrl}`}
+                        href={report.attachedFileUrl.startsWith('data:') ? report.attachedFileUrl : `${BACKEND_URL}${report.attachedFileUrl}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         download={report.attachedFileUrl.startsWith('data:') ? 'Attached_Report_File' : undefined}
